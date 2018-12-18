@@ -12,7 +12,7 @@ namespace StorageMate.Tests
         public string Data;
     }
 
-    public class Tests
+    public class TableBaseDataAccessorTests
     {
         private const string RemoteAzureConnStr = "";
 
