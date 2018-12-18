@@ -27,6 +27,18 @@
             Task.Run(_cloudTable.CreateIfNotExistsAsync).Wait();
         }
 
+        public TableBasedDataAccessor(CloudStorageAccount storageAccount) : this(storageAccount, string.Empty)
+        {
+        }
+
+        public TableBasedDataAccessor(CloudStorageAccount storageAccount, string tableName)
+        {
+            storageAccount = storageAccount ?? throw new ArgumentNullException(nameof(storageAccount));
+            _tableName = !string.IsNullOrEmpty(tableName) ? tableName : _tableName;
+            _cloudTable = storageAccount.CreateCloudTableClient().GetTableReference(_tableName);
+            Task.Run(_cloudTable.CreateIfNotExistsAsync).Wait();
+        }
+
         public TData Read(string key)
         {
             if (string.IsNullOrEmpty(key))
@@ -34,38 +46,50 @@
                 throw new ArgumentNullException(nameof(key));
             }
 
-            var dataObj = new TData();
-            var props = dataObj.GetType().GetProperties();
-            var fields = dataObj.GetType().GetFields();
-            var propNameSet = new HashSet<string>(props.Select(x => x.Name));
-            var fieldNameSet = new HashSet<string>(fields.Select(x => x.Name));
-            var propEntityList = _cloudTable.GetKvpAll(key, propNameSet);
-            var fieldEntityList = _cloudTable.GetKvpAll(key, fieldNameSet);
-
-            foreach (var entity in propEntityList)
+            try
             {
+                var dataObj = new TData();
+                var props = dataObj.GetType().GetProperties();
+                var fields = dataObj.GetType().GetFields();
+                var propNameSet = new HashSet<string>(props.Select(x => x.Name));
+                var fieldNameSet = new HashSet<string>(fields.Select(x => x.Name));
+                var propEntityList = _cloudTable.GetKvpAll(key, propNameSet);
+                var fieldEntityList = _cloudTable.GetKvpAll(key, fieldNameSet);
 
-                var propInfo = dataObj.GetType().GetProperty(entity.RowKey);
-                if (propInfo == null)
+                var hasData = false;
+                foreach (var entity in propEntityList)
                 {
-                    continue;
+                    var propInfo = dataObj.GetType().GetProperty(entity.RowKey);
+                    if (propInfo == null)
+                    {
+                        continue;
+                    }
+
+                    var propType = propInfo.PropertyType;
+                    propInfo.SetValue(dataObj,
+                        propType == typeof(string) ? entity.Data : JsonConvert.DeserializeObject(entity.Data, propType),
+                        null);
+                    hasData = true;
                 }
-                var propType = propInfo.PropertyType;
-                propInfo.SetValue(dataObj,
-                    propType == typeof(string) ? entity.Data : JsonConvert.DeserializeObject(entity.Data, propType), null);
 
+                foreach (var entity in fieldEntityList)
+                {
+
+                    var fieldInfo = dataObj.GetType().GetField(entity.RowKey);
+                    var fieldType = fieldInfo.FieldType;
+                    fieldInfo.SetValue(dataObj,
+                        fieldType == typeof(string)
+                            ? entity.Data
+                            : JsonConvert.DeserializeObject(entity.Data, fieldType));
+                    hasData = true;
+                }
+
+                return hasData ? dataObj : default(TData);
             }
-
-            foreach (var entity in fieldEntityList)
+            catch
             {
-
-                var fieldInfo = dataObj.GetType().GetField(entity.RowKey);
-                var fieldType = fieldInfo.FieldType;
-                fieldInfo.SetValue(dataObj, fieldType == typeof(string) ? entity.Data : JsonConvert.DeserializeObject(entity.Data, fieldType));
-
+                return default(TData);
             }
-
-            return dataObj;
         }
 
         public async Task<TData> ReadAsync(string key)
@@ -75,38 +99,49 @@
                 throw new ArgumentNullException(nameof(key));
             }
 
-            var dataObj = new TData();
-            var props = dataObj.GetType().GetProperties();
-            var fields = dataObj.GetType().GetFields();
-            var propNameSet = new HashSet<string>(props.Select(x => x.Name));
-            var fieldNameSet = new HashSet<string>(fields.Select(x => x.Name));
-            var propEntityList = await _cloudTable.GetKvpAllAsync(key, propNameSet);
-            var fieldEntityList = await _cloudTable.GetKvpAllAsync(key, fieldNameSet);
-
-            foreach (var entity in propEntityList)
+            try
             {
+                var dataObj = new TData();
+                var props = dataObj.GetType().GetProperties();
+                var fields = dataObj.GetType().GetFields();
+                var propNameSet = new HashSet<string>(props.Select(x => x.Name));
+                var fieldNameSet = new HashSet<string>(fields.Select(x => x.Name));
+                var propEntityList = await _cloudTable.GetKvpAllAsync(key, propNameSet);
+                var fieldEntityList = await _cloudTable.GetKvpAllAsync(key, fieldNameSet);
 
-                var propInfo = dataObj.GetType().GetProperty(entity.RowKey);
-                if (propInfo == null)
+                var hasData = false;
+                foreach (var entity in propEntityList)
                 {
-                    continue;
+                    var propInfo = dataObj.GetType().GetProperty(entity.RowKey);
+                    if (propInfo == null)
+                    {
+                        continue;
+                    }
+
+                    var propType = propInfo.PropertyType;
+                    propInfo.SetValue(dataObj,
+                        propType == typeof(string) ? entity.Data : JsonConvert.DeserializeObject(entity.Data, propType),
+                        null);
+                    hasData = true;
                 }
-                var propType = propInfo.PropertyType;
-                propInfo.SetValue(dataObj,
-                    propType == typeof(string) ? entity.Data : JsonConvert.DeserializeObject(entity.Data, propType), null);
 
+                foreach (var entity in fieldEntityList)
+                {
+                    var fieldInfo = dataObj.GetType().GetField(entity.RowKey);
+                    var fieldType = fieldInfo.FieldType;
+                    fieldInfo.SetValue(dataObj,
+                        fieldType == typeof(string)
+                            ? entity.Data
+                            : JsonConvert.DeserializeObject(entity.Data, fieldType));
+                    hasData = true;
+                }
+
+                return hasData ? dataObj : default(TData);
             }
-
-            foreach (var entity in fieldEntityList)
+            catch
             {
-
-                var fieldInfo = dataObj.GetType().GetField(entity.RowKey);
-                var fieldType = fieldInfo.FieldType;
-                fieldInfo.SetValue(dataObj, fieldType == typeof(string) ? entity.Data : JsonConvert.DeserializeObject(entity.Data, fieldType));
-
+                return default(TData);
             }
-
-            return dataObj;
         }
 
         public TData Write(string key, TData data)

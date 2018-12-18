@@ -1,7 +1,8 @@
-﻿namespace StorageMate.Azure
+﻿namespace StorageMate.Azure.Table
 {
     using System.Threading.Tasks;
     using Core.ObjectStore;
+
     public class TripleTableDataAccessor<TData> : IDataAccessor<string, TData> where TData : new()
     {
         public TData Read(string key)

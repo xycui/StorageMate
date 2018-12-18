@@ -58,9 +58,11 @@
             TableContinuationToken token = null;
             do
             {
-                var segementResult = Task.Run(async () => await table.ExecuteQuerySegmentedAsync(tableQuery, new TableContinuationToken())).Result;
-                token = segementResult.ContinuationToken;
-                foreach (var result in segementResult.Results)
+                var segmentResult = Task.Run(async () =>
+                        await table.ExecuteQuerySegmentedAsync(tableQuery, new TableContinuationToken())).Result;
+                token = segmentResult.ContinuationToken;
+
+                foreach (var result in segmentResult.Results)
                 {
                     yield return result;
                 }
@@ -98,7 +100,10 @@
             foreach (var entity in entityBatch)
             {
                 batchOperation.Add(TableOperation.InsertOrReplace(entity));
-                if (batchOperation.Count != 100) continue;
+                if (batchOperation.Count != 100)
+                {
+                    continue;
+                }
 
                 await table.ExecuteBatchAsync(batchOperation).ConfigureAwait(false);
                 batchOperation.Clear();

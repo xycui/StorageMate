@@ -1,12 +1,17 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <PackageOutputPath>$(SolutionDir)NugetOutput</PackageOutputPath>
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>Xianyi Cui</Authors>
     <Company />
     <Description>Azure implement for StorageMate.Core interfaces. Including Table/Blob based implementing.</Description>
-    <Version>0.1.0</Version>
+    <Version>0.1.2</Version>
+    <PackageLicenseUrl></PackageLicenseUrl>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageProjectUrl>https://github.com/xycui/StorageMate</PackageProjectUrl>
+    <PackageTags>Storage, Azure, Extended, Helper</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
