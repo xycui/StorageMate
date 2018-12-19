@@ -5,12 +5,13 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>Xianyi Cui</Authors>
-    <Version>0.1.2</Version>
+    <Version>0.2.1</Version>
     <Description>Basic storage abstraction for common usage.</Description>
     <PackageLicenseUrl></PackageLicenseUrl>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>Storage, Extended, Helper</PackageTags>
     <PackageProjectUrl>https://github.com/xycui/StorageMate</PackageProjectUrl>
+    <PackageReleaseNotes>Add stats interface.</PackageReleaseNotes>
   </PropertyGroup>
 
 </Project>

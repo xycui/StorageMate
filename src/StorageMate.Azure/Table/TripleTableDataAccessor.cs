@@ -3,7 +3,8 @@
     using System.Threading.Tasks;
     using Core.ObjectStore;
 
-    public class TripleTableDataAccessor<TData> : IDataAccessor<string, TData> where TData : new()
+    //todo: Finish and change to public
+    internal class TripleTableDataAccessor<TData> : IDataAccessor<string, TData> where TData : new()
     {
         public TData Read(string key)
         {

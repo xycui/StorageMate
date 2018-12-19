@@ -1,6 +1,7 @@
 ﻿namespace StorageMate.Azure.Table
 {
     using Core.ObjectStore;
+    using Core.Utils;
     using Microsoft.WindowsAzure.Storage;
     using Microsoft.WindowsAzure.Storage.Table;
     using Newtonsoft.Json;
@@ -178,7 +179,7 @@
                                             : JsonConvert.SerializeObject(y.GetValue(data))
                                 }));
 
-            await _cloudTable.InsertOrReplaceBatchAsync(key, tableStorageEntityList);
+            await _cloudTable.InsertOrReplaceBatchAsync(tableStorageEntityList);
 
             return data;
         }

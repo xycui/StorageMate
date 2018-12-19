@@ -94,7 +94,7 @@
             return ret;
         }
 
-        public static async Task InsertOrReplaceBatchAsync(this CloudTable table, string partitionKey, IEnumerable<KvpTableEntity> entityBatch)
+        public static async Task InsertOrReplaceBatchAsync(this CloudTable table, IEnumerable<KvpTableEntity> entityBatch)
         {
             var batchOperation = new TableBatchOperation();
             foreach (var entity in entityBatch)
