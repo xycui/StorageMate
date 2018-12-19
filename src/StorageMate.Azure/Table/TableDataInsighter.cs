@@ -271,6 +271,11 @@
             {
                 foreach (var conBag in conditionBag)
                 {
+                    if (conBag.Equals(bag))
+                    {
+                        continue;
+                    }
+
                     var condContent = HashUtil.ComputeMd5Hash(conBag.MemberValue);
                     var partionKey = $"{typeof(TData)}_{conBag.MemberType}_{conBag.MemberName}_{condContent}_{bag.MemberType}_{bag.MemberName}";
                     var rowKey = HashUtil.ComputeMd5Hash(bag.MemberValue);
