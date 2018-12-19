@@ -5,6 +5,7 @@ namespace StorageMate.Tests
     using NUnit.Framework;
     using System;
     using System.Linq.Expressions;
+    using Core.Stats;
 
 
     internal class MockData
@@ -46,7 +47,7 @@ namespace StorageMate.Tests
                 : RemoteAzureConnStr;
 
             var mockData = new MockData { Id = Guid.NewGuid().ToString("N"), Data = "Test" };
-            var accessor = new TableBasedDataAccessor<MockData>("");
+            var accessor = new TableBasedDataAccessor<MockData>(RemoteAzureConnStr);
             var data = accessor.Read(mockData.Id);
             Assert.IsNull(data);
             data = accessor.Write(mockData.Id, mockData);
