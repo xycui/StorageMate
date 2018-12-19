@@ -1,7 +1,6 @@
 ﻿namespace StorageMate.Azure.Table
 {
     using Core.ObjectStore;
-    using Core.Utils;
     using Microsoft.WindowsAzure.Storage;
     using Microsoft.WindowsAzure.Storage.Table;
     using Newtonsoft.Json;
@@ -61,7 +60,7 @@
                 foreach (var entity in propEntityList)
                 {
                     var propInfo = dataObj.GetType().GetProperty(entity.RowKey);
-                    if (propInfo == null)
+                    if (propInfo == null || propInfo.GetSetMethod() == null)
                     {
                         continue;
                     }
@@ -114,7 +113,7 @@
                 foreach (var entity in propEntityList)
                 {
                     var propInfo = dataObj.GetType().GetProperty(entity.RowKey);
-                    if (propInfo == null)
+                    if (propInfo == null || propInfo.GetSetMethod() == null)
                     {
                         continue;
                     }
@@ -155,7 +154,7 @@
             var props = data.GetType().GetProperties();
             var fields = data.GetType().GetFields();
             var tableStorageEntityList =
-                props.Select(
+                props.Where(x => x.GetGetMethod() != null).Select(
                         x =>
                             new KvpTableEntity
                             {
