@@ -51,7 +51,7 @@
                 var data = default(TProperty);
                 try
                 {
-                    data = JsonConvert.DeserializeObject<TProperty>(item.Data);
+                    data = LoadFromString<TProperty>(item.Data);
                 }
                 catch
                 {
@@ -74,7 +74,7 @@
                 {
                     try
                     {
-                        return JsonConvert.DeserializeObject<TProperty>(x.Data);
+                        return LoadFromString<TProperty>(x.Data);
                     }
                     catch
                     {
@@ -98,7 +98,7 @@
                 var data = default(TProperty);
                 try
                 {
-                    data = JsonConvert.DeserializeObject<TProperty>(item.Data);
+                    data = LoadFromString<TProperty>(item.Data);
                 }
                 catch
                 {
@@ -125,7 +125,7 @@
                 {
                     try
                     {
-                        return JsonConvert.DeserializeObject<TProperty>(x.Data);
+                        return LoadFromString<TProperty>(x.Data);
                     }
                     catch
                     {
@@ -283,6 +283,16 @@
                     yield return new KvpTableEntity(partionKey, rowKey, bag.MemberValue);
                 }
             }
+        }
+
+        private static TProperty LoadFromString<TProperty>(string data)
+        {
+            if (typeof(TProperty) == typeof(string))
+            {
+                return (TProperty)Convert.ChangeType(data, typeof(TProperty));
+            }
+
+            return JsonConvert.DeserializeObject<TProperty>(data);
         }
     }
 }

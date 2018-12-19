@@ -7,7 +7,7 @@
     <Authors>Xianyi Cui</Authors>
     <Company />
     <Description>Azure implement for StorageMate.Core interfaces. Including Table/Blob based implementing.</Description>
-    <Version>0.2.2</Version>
+    <Version>0.2.3</Version>
     <PackageLicenseUrl></PackageLicenseUrl>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageProjectUrl>https://github.com/xycui/StorageMate</PackageProjectUrl>
