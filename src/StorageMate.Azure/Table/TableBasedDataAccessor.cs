@@ -59,29 +59,12 @@
                 var hasData = false;
                 foreach (var entity in propEntityList)
                 {
-                    var propInfo = dataObj.GetType().GetProperty(entity.RowKey);
-                    if (propInfo == null || propInfo.GetSetMethod() == null)
-                    {
-                        continue;
-                    }
-
-                    var propType = propInfo.PropertyType;
-                    propInfo.SetValue(dataObj,
-                        propType == typeof(string) ? entity.Data : JsonConvert.DeserializeObject(entity.Data, propType),
-                        null);
-                    hasData = true;
+                    SetPropDataBasedOnValue(dataObj, entity, ref hasData);
                 }
 
                 foreach (var entity in fieldEntityList)
                 {
-
-                    var fieldInfo = dataObj.GetType().GetField(entity.RowKey);
-                    var fieldType = fieldInfo.FieldType;
-                    fieldInfo.SetValue(dataObj,
-                        fieldType == typeof(string)
-                            ? entity.Data
-                            : JsonConvert.DeserializeObject(entity.Data, fieldType));
-                    hasData = true;
+                    SetFieldDataBasedOnValue(dataObj, entity, ref hasData);
                 }
 
                 return hasData ? dataObj : default(TData);
@@ -112,28 +95,12 @@
                 var hasData = false;
                 foreach (var entity in propEntityList)
                 {
-                    var propInfo = dataObj.GetType().GetProperty(entity.RowKey);
-                    if (propInfo == null || propInfo.GetSetMethod() == null)
-                    {
-                        continue;
-                    }
-
-                    var propType = propInfo.PropertyType;
-                    propInfo.SetValue(dataObj,
-                        propType == typeof(string) ? entity.Data : JsonConvert.DeserializeObject(entity.Data, propType),
-                        null);
-                    hasData = true;
+                    SetPropDataBasedOnValue(dataObj, entity, ref hasData);
                 }
 
                 foreach (var entity in fieldEntityList)
                 {
-                    var fieldInfo = dataObj.GetType().GetField(entity.RowKey);
-                    var fieldType = fieldInfo.FieldType;
-                    fieldInfo.SetValue(dataObj,
-                        fieldType == typeof(string)
-                            ? entity.Data
-                            : JsonConvert.DeserializeObject(entity.Data, fieldType));
-                    hasData = true;
+                    SetFieldDataBasedOnValue(dataObj, entity, ref hasData);
                 }
 
                 return hasData ? dataObj : default(TData);
@@ -181,6 +148,65 @@
             await _cloudTable.InsertOrReplaceBatchAsync(tableStorageEntityList);
 
             return data;
+        }
+
+        private static bool TryDeserializeObject(string data, Type type, out object obj)
+        {
+            obj = null;
+            try
+            {
+                obj = JsonConvert.DeserializeObject(data, type);
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        private static void SetPropDataBasedOnValue(TData dataObj, KvpTableEntity entity, ref bool success)
+        {
+            var propInfo = dataObj.GetType().GetProperty(entity.RowKey);
+            if (propInfo == null || propInfo.SetMethod == null)
+            {
+                return;
+            }
+
+            var propType = propInfo.PropertyType;
+            if (propType == typeof(string))
+            {
+                propInfo.SetValue(dataObj, entity.Data, null);
+            }
+            else
+            {
+                if (!TryDeserializeObject(entity.Data, propType, out var obj))
+                {
+                    return;
+                }
+                propInfo.SetValue(dataObj, obj, null);
+            }
+
+            success = true;
+        }
+
+        private static void SetFieldDataBasedOnValue(TData dataObj, KvpTableEntity entity, ref bool success)
+        {
+            var fieldInfo = dataObj.GetType().GetField(entity.RowKey);
+            var fieldType = fieldInfo.FieldType;
+            if (fieldType == typeof(string))
+            {
+                fieldInfo.SetValue(dataObj, entity.Data);
+            }
+            else
+            {
+                if (!TryDeserializeObject(entity.Data, fieldType, out var obj))
+                {
+                    return;
+                }
+                fieldInfo.SetValue(dataObj, obj);
+            }
+
+            success = true;
         }
     }
 }
