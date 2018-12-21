@@ -52,7 +52,7 @@
                 var props = dataObj.GetType().GetProperties();
                 var fields = dataObj.GetType().GetFields();
                 var propNameSet = new HashSet<string>(props.Select(x => x.Name));
-                var fieldNameSet = new HashSet<string>(fields.Select(x => x.Name));
+                var fieldNameSet = new HashSet<string>(fields.Where(x => !x.IsLiteral).Select(x => x.Name));
                 var propEntityList = _cloudTable.GetKvpAll(key, propNameSet);
                 var fieldEntityList = _cloudTable.GetKvpAll(key, fieldNameSet);
 
@@ -88,7 +88,7 @@
                 var props = dataObj.GetType().GetProperties();
                 var fields = dataObj.GetType().GetFields();
                 var propNameSet = new HashSet<string>(props.Select(x => x.Name));
-                var fieldNameSet = new HashSet<string>(fields.Select(x => x.Name));
+                var fieldNameSet = new HashSet<string>(fields.Where(x=>!x.IsLiteral).Select(x => x.Name));
                 var propEntityList = await _cloudTable.GetKvpAllAsync(key, propNameSet);
                 var fieldEntityList = await _cloudTable.GetKvpAllAsync(key, fieldNameSet);
 
