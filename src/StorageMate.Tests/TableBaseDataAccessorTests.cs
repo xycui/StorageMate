@@ -5,7 +5,6 @@ namespace StorageMate.Tests
     using NUnit.Framework;
     using System;
     using System.Linq.Expressions;
-    using Core.Stats;
 
 
     internal class MockData
@@ -13,6 +12,8 @@ namespace StorageMate.Tests
         public string Id;
         public string Data;
         public MockData Test { get; set; }
+        public string Data1 { get; set; } = "test";
+        public string Data2 { get; private set; } = "test";
     }
 
     public class TableBaseDataAccessorTests
